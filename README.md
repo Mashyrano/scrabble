@@ -43,7 +43,8 @@ against the bundled ENABLE word list (`_shared/words.ts`).
 - **Google sign-in (optional)**: create an OAuth client in Google Cloud Console
   (*APIs & Services → Credentials → OAuth client ID → Web application*), add the callback URL that
   Supabase shows under **Authentication → Sign In / Providers → Google** as an authorized redirect URI,
-  then paste the client ID and secret into that Supabase page and enable it.
+  then paste the client ID and secret into that Supabase page and enable it. Finally set
+  `VITE_GOOGLE_SIGN_IN=true` (in `.env.local` and in Vercel) to show the Google button.
 
 ### 3. Deploy the edge function
 

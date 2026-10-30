@@ -9,6 +9,9 @@ if (!url || !key) {
 
 export const supabase = createClient(url, key);
 
+// Set once Google is enabled under Authentication → Sign In / Providers.
+export const GOOGLE_SIGN_IN = import.meta.env.VITE_GOOGLE_SIGN_IN === 'true';
+
 // The app's view of a signed-in user.
 export function toAppUser(user) {
   if (!user) return null;
