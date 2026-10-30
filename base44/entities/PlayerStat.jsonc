@@ -1,0 +1,75 @@
+{
+  "name": "PlayerStat",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "player_name": {
+      "type": "string"
+    },
+    "games_played": {
+      "type": "number"
+    },
+    "wins": {
+      "type": "number"
+    },
+    "losses": {
+      "type": "number"
+    },
+    "draws": {
+      "type": "number"
+    },
+    "win_percentage": {
+      "type": "number"
+    },
+    "total_points": {
+      "type": "number"
+    },
+    "average_score": {
+      "type": "number"
+    },
+    "highest_game_score": {
+      "type": "number"
+    },
+    "highest_word_score": {
+      "type": "number"
+    },
+    "highest_word": {
+      "type": "string"
+    },
+    "longest_word": {
+      "type": "string"
+    },
+    "current_streak": {
+      "type": "number"
+    },
+    "longest_streak": {
+      "type": "number"
+    },
+    "last_played_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

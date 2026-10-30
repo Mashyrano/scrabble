@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 42 38% 96%;
+    --foreground: 162 24% 12%;
+    --card: 40 44% 99%;
+    --card-foreground: 162 24% 12%;
+    --popover: 40 44% 99%;
+    --popover-foreground: 162 24% 12%;
+    --primary: 158 44% 21%;
+    --primary-foreground: 42 44% 97%;
+    --secondary: 150 18% 92%;
+    --secondary-foreground: 162 24% 14%;
+    --muted: 42 26% 93%;
+    --muted-foreground: 162 12% 42%;
+    --accent: 36 92% 52%;
+    --accent-foreground: 162 30% 12%;
+    --destructive: 0 66% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 42 20% 87%;
+    --input: 42 20% 87%;
+    --ring: 158 44% 21%;
+    --chart-1: 158 44% 32%;
+    --chart-2: 36 88% 55%;
+    --chart-3: 190 45% 45%;
+    --chart-4: 348 55% 58%;
+    --chart-5: 205 45% 45%;
+    --radius: 0.75rem;
+
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --board: 160 38% 19%;
+    --board-line: 160 28% 27%;
+    --tile: 42 52% 95%;
+    --tile-ink: 160 30% 13%;
+    --dl: 189 46% 58%;
+    --tl: 205 52% 42%;
+    --dw: 348 52% 60%;
+    --tw: 12 68% 50%;
+
+    --sidebar-background: 42 34% 94%;
+    --sidebar-foreground: 162 14% 28%;
+    --sidebar-primary: 158 44% 21%;
+    --sidebar-primary-foreground: 42 44% 97%;
+    --sidebar-accent: 42 26% 90%;
+    --sidebar-accent-foreground: 162 24% 14%;
+    --sidebar-border: 42 20% 87%;
+    --sidebar-ring: 158 44% 21%;
+  }
+
+  .dark {
+    --background: 168 18% 7%;
+    --foreground: 42 26% 94%;
+    --card: 168 16% 10%;
+    --card-foreground: 42 26% 94%;
+    --popover: 168 16% 10%;
+    --popover-foreground: 42 26% 94%;
+    --primary: 152 40% 60%;
+    --primary-foreground: 168 30% 8%;
+    --secondary: 168 12% 16%;
+    --secondary-foreground: 42 26% 94%;
+    --muted: 168 12% 16%;
+    --muted-foreground: 42 14% 66%;
+    --accent: 36 82% 56%;
+    --accent-foreground: 168 30% 8%;
+    --destructive: 0 55% 45%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 168 12% 18%;
+    --input: 168 12% 18%;
+    --ring: 152 40% 60%;
+    --chart-1: 152 40% 55%;
+    --chart-2: 36 82% 58%;
+    --chart-3: 190 45% 55%;
+    --chart-4: 348 55% 62%;
+    --chart-5: 205 45% 58%;
+
+    --board: 160 30% 13%;
+    --board-line: 160 22% 21%;
+    --tile: 42 30% 88%;
+    --tile-ink: 160 30% 10%;
+    --dl: 189 40% 48%;
+    --tl: 205 45% 42%;
+    --dw: 348 45% 55%;
+    --tw: 12 60% 48%;
+
+    --sidebar-background: 168 16% 9%;
+    --sidebar-foreground: 42 20% 88%;
+    --sidebar-primary: 152 40% 60%;
+    --sidebar-primary-foreground: 168 30% 8%;
+    --sidebar-accent: 168 12% 16%;
+    --sidebar-accent-foreground: 42 26% 94%;
+    --sidebar-border: 168 12% 18%;
+    --sidebar-ring: 152 40% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
