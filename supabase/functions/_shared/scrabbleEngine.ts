@@ -1,6 +1,4 @@
 // Values the live room needs: dealing tiles and settling the final scores.
-// The move analyser lives beside the validator function, which bundles its own
-// copy (function deployments cannot reach into this folder).
 
 export const RACK_SIZE = 7;
 

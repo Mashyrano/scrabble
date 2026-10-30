@@ -1,5 +1,3 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Play, Dices } from 'lucide-react';
@@ -14,6 +12,7 @@ import MoveControls from '@/components/game/MoveControls';
 import SwapDialog from '@/components/game/SwapDialog';
 import GameOverPanel from '@/components/game/GameOverPanel';
 import useScrabbleRoom from '@/hooks/useScrabbleRoom';
+import { useAuth } from '@/lib/AuthContext';
 import { analyzeDraft } from '@/lib/movePreview';
 import { playTileClick, playTilesLaid } from '@/lib/sfx';
 
@@ -25,7 +24,7 @@ export default function GameRoomPage() {
   const maxPlayers = Number(searchParams.get('seats')) || 2;
   const { toast } = useToast();
 
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [draft, setDraft] = useState({});
   const [selectedId, setSelectedId] = useState(null);
   const [blankTile, setBlankTile] = useState(null);
@@ -35,12 +34,8 @@ export default function GameRoomPage() {
   const [busy, setBusy] = useState(false);
   const dragRef = useRef(null);
 
-  useEffect(() => {
-    db.auth.me().then(setUser);
-  }, []);
-
   const { state, rack, me, error, clearError, send } = useScrabbleRoom(code, {
-    name: user?.full_name,
+    userId: user?.id,
     maxPlayers,
   });
 

@@ -1,8 +1,7 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import { useEffect, useMemo, useState } from 'react';
 import { BarChart3 } from 'lucide-react';
 
+import { supabase } from '@/api/supabaseClient';
 import { Card, CardContent } from '@/components/ui/card';
 import LeaderboardTable from '@/components/stats/LeaderboardTable';
 import RecordsGrid from '@/components/stats/RecordsGrid';
@@ -15,11 +14,11 @@ export default function Stats() {
 
   useEffect(() => {
     Promise.all([
-      db.entities.PlayerStat.list({ sort: '-wins', limit: 100 }),
-      db.entities.Game.list({ sort: '-played_at', limit: 25 }),
+      supabase.from('player_stats').select('*').order('wins', { ascending: false }).limit(100),
+      supabase.from('games').select('*').order('played_at', { ascending: false }).limit(25),
     ]).then(([statsPage, gamesPage]) => {
-      setStats(statsPage?.items ?? []);
-      setGames(gamesPage?.items ?? []);
+      setStats(statsPage.data ?? []);
+      setGames(gamesPage.data ?? []);
       setLoading(false);
     });
   }, []);

@@ -1,5 +1,3 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Hash, Plus, Sparkles, Users, Volume2, VolumeX } from 'lucide-react';
@@ -12,10 +10,10 @@ import { useToast } from '@/components/ui/use-toast';
 import { CODE_LENGTH, isValidRoomCode, makeRoomCode, normalizeRoomCode } from '@/lib/roomCode';
 import { cn } from '@/lib/utils';
 
-const PLAYER_COUNTS = [2, 3, 4, 5];
-// "Time to Say Goodbye" — uploaded lobby track.
-const MUSIC_URL =
-  'https://media.db.com/files/public/6adba1a59ac5001a9d352219/88a3b1f8a_TimeToSayGoodbye.mp3';
+// The room seats at most four, as in the board game.
+const PLAYER_COUNTS = [2, 3, 4];
+// Lobby track, served from public/music/.
+const MUSIC_URL = '/music/lobby.mp3';
 const BRAND_TILES = ['S', 'C', 'R', 'A', 'B', 'B', 'L', 'E'];
 
 export default function Lobby() {

@@ -1,5 +1,4 @@
 // Move analyser: shape checks, word formation and scoring with board multipliers.
-// Bundled with the validator (function deployments cannot import across folders).
 
 const BOARD_SIZE = 15;
 const RACK_SIZE = 7;

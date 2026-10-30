@@ -1,0 +1,6 @@
+# Settings the Supabase CLI uses when deploying from this folder.
+project_id = "scrabble"
+
+[functions.room]
+# The function checks the caller's session itself (see room/index.ts).
+verify_jwt = false

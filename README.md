@@ -1,64 +1,83 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+# Scrabble
 
-# Base44 Project
+Real-time multiplayer Scrabble for 2–4 players, each on their own device.
 
-Use this repository to run and edit the app locally, then publish changes back through db.
+- **Frontend:** React + Vite + Tailwind, deployed on Vercel.
+- **Backend:** Supabase — auth (email/password and Google), Postgres, Realtime, and one edge function (`room`) that runs the game.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## How it fits together
 
-## Prerequisites
+| Piece | Where |
+|---|---|
+| Pages and game UI | `src/` |
+| Supabase client | `src/api/supabaseClient.js` |
+| Live table hook (Realtime + presence) | `src/hooks/useScrabbleRoom.js` |
+| Game rules, scoring, dictionary | `supabase/functions/_shared/` |
+| Edge function every move goes through | `supabase/functions/room/index.ts` |
+| Database schema | `supabase/migrations/` |
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-5. Install [Deno](https://docs.deno.com/runtime/getting_started/installation/) — the local Base44 backend runs on it.
+The full game (the bag and every rack) lives in the `rooms` table, which only the
+edge function can reach. Players read the public `room_states` table and their own
+row in `room_hands`, so nobody can see anyone else's tiles. Words are checked
+against the bundled ENABLE word list (`_shared/words.ts`).
 
-Run `base44 --help` (or see the [CLI reference](https://docs.db.com/developers/references/cli/commands/introduction)) for the full command surface.
+## One-time setup
 
-## Run Locally
+### 1. Supabase project
 
-Three commands, from the project root:
+1. Create a free project at <https://supabase.com/dashboard>.
+2. **SQL Editor → New query**: paste all of `supabase/migrations/20261030000000_init.sql` and click **Run**.
+3. **Project Settings → API Keys**: copy the **publishable key**. **Project Settings → Data API**: copy the **Project URL**.
+
+### 2. Auth settings
+
+- **Authentication → URL Configuration**
+  - *Site URL*: your Vercel URL once you have it (use `http://localhost:5173` until then).
+  - *Redirect URLs*: add `http://localhost:5173/**` and `https://<your-app>.vercel.app/**`.
+- **Authentication → Emails → Templates → Confirm signup**: the sign-up page asks for
+  a 6-digit code, so the email must contain it. Replace the body with, for example:
+  `<h2>Your Scrabble code</h2><p>Enter this code to finish signing up: <strong>{{ .Token }}</strong></p>`
+- Supabase's built-in email sender only allows a few emails per hour. For real use, either set up
+  custom SMTP (**Authentication → Emails → SMTP Settings**, e.g. a free Resend account) or turn off
+  **Confirm email** under **Authentication → Sign In / Providers → Email** — the app works either way.
+- **Google sign-in (optional)**: create an OAuth client in Google Cloud Console
+  (*APIs & Services → Credentials → OAuth client ID → Web application*), add the callback URL that
+  Supabase shows under **Authentication → Sign In / Providers → Google** as an authorized redirect URI,
+  then paste the client ID and secret into that Supabase page and enable it.
+
+### 3. Deploy the edge function
+
+From the project root (needs Node; no Docker required):
 
 ```bash
-base44 login   # one-time per machine
-base44 link    # one-time per clone
-base44 dev     # local backend + frontend together
+npx supabase login
+npx supabase functions deploy room --project-ref <your-project-ref> --no-verify-jwt
 ```
 
-Open the frontend URL that `base44 dev` prints (typically `http://localhost:5173`).
+The project ref is the `xxxx` in `https://xxxx.supabase.co`. Redeploy after changing anything in `supabase/functions/`.
 
-Notes:
+### 4. Lobby music (optional)
 
-- **Every fresh clone needs `base44 link`.** It writes `base44/.app.jsonc` (the app-id pointer), which is deliberately gitignored. Your app id is in the Builder URL (`app.db.com/apps/<id>/...`); `base44 link --help` shows the non-interactive flags.
-- **`base44 dev` runs the frontend for you** (via `site.serveCommand` in this repo's `base44/config.jsonc`) — never run `npm run dev` yourself: alone it serves a UI with no backend behind it (`[base44] Proxy not enabled`, every `/api` call fails), and alongside `base44 dev` the second Vite silently takes the next port and you end up looking at the wrong one.
-- **The app must be published at least once for the UI to load under `base44 dev`.** The frontend boots by fetching app settings from the hosted app; before the first publish that fails and every page redirects to login. The local API works regardless.
-- Entities, functions, and auth run locally — entity data is **in-memory only**, wiped when `base44 dev` restarts. Everything else (Core integrations, OAuth login) is forwarded to your deployed app. Full breakdown: [Local development overview](https://docs.db.com/developers/backend/overview/local-dev/local-development-overview).
+Put an mp3 at `public/music/lobby.mp3`. Without it the music button simply does nothing.
 
-## Frontend Only, Hosted Backend
-
-To work on just the frontend against your app's live hosted backend:
+## Run locally
 
 ```bash
-base44 dev --remote
+npm install
+cp .env.example .env.local   # then fill in the two values
+npm run dev
 ```
 
-⚠️ In this mode writes go to your app's **production data** — plain `base44 dev` keeps everything local.
+Open <http://localhost:5173>. To test multiplayer, sign in as a second user in a private window.
 
-## Publish Your Changes
+Checks: `npm run lint` and `npm run build`.
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+## Deploy to Vercel
 
-```bash
-base44 dashboard open
-```
+1. Push this repo to GitHub.
+2. In Vercel: **Add New → Project**, import the repo (Vite is detected automatically).
+3. Add the environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+4. Deploy, then put the Vercel URL into Supabase's *Site URL* and *Redirect URLs* (step 2).
 
-This repo syncs to Base44 through git, so publish from the dashboard rather than `base44 deploy` — a CLI deploy ships your local tree directly, bypassing the sync, and the deployed state silently diverges from the repo.
-
-## Docs & Support
-
-GitHub integration: [https://docs.db.com/developers/app-code/local-development/github](https://docs.db.com/developers/app-code/local-development/github)
-
-Local development: [https://docs.db.com/developers/backend/overview/local-dev/local-development-overview](https://docs.db.com/developers/backend/overview/local-dev/local-development-overview)
-
-Support: [https://app.db.com/support](https://app.db.com/support)
+Every push to `main` redeploys the frontend. `vercel.json` sends all routes to `index.html`
+so links like `/play/ABC2345` work on refresh.

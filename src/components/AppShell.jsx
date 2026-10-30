@@ -1,9 +1,7 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
-import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { BarChart3, LogOut, Grid3x3 } from 'lucide-react';
 
+import { useAuth } from '@/lib/AuthContext';
 import { cn } from '@/lib/utils';
 
 const links = [
@@ -12,11 +10,7 @@ const links = [
 ];
 
 export default function AppShell() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    db.auth.me().then(setUser);
-  }, []);
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,7 +46,7 @@ export default function AppShell() {
             <span className="hidden text-sm text-muted-foreground sm:inline">{user?.full_name || ''}</span>
             <button
               type="button"
-              onClick={() => db.auth.logout('/login')}
+              onClick={logout}
               className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
