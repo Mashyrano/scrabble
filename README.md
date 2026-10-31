@@ -2,7 +2,7 @@
 
 Real-time multiplayer Scrabble for 2–4 players, each on their own device.
 
-- **Frontend:** React + Vite + Tailwind, deployed on Cloudflare Workers (static assets).
+- **Frontend:** React + Vite + Tailwind, deployed on Cloudflare Workers as static files (see [Deploy to Cloudflare](#deploy-to-cloudflare)).
 - **Backend:** Supabase — auth (email/password and Google), Postgres, Realtime, and one edge function (`room`) that runs the game.
 
 ## How it fits together
@@ -75,15 +75,66 @@ Checks: `npm run lint` and `npm run build`.
 
 ## Deploy to Cloudflare
 
-The frontend is a static site served by Cloudflare Workers (config in `wrangler.jsonc`).
-The `VITE_*` values are baked in at build time, so the deploy builds from your `.env.local`.
+Live at <https://scrabble.mashyrano.workers.dev>.
+
+### How it works
+
+Cloudflare only hosts the frontend. It is a static site: HTML, JS and CSS files that Cloudflare
+serves from its data centres worldwide, each visitor from the one nearest them. Nothing runs on
+Cloudflare. Sign-in, games and moves go straight from the browser to Supabase.
+
+**Wrangler** is Cloudflare's command-line tool (a dev dependency here, run with `npx wrangler`).
+It reads its settings from `wrangler.jsonc`:
+
+| Setting | Meaning |
+|---|---|
+| `name` | The Worker's name in Cloudflare; also the first part of the URL (`scrabble.<subdomain>.workers.dev`). |
+| `compatibility_date` | Which Cloudflare runtime behaviour to use. Leave it alone unless you add server code. |
+| `assets.directory` | The folder to upload: `./dist`, the output of `vite build`. |
+| `assets.not_found_handling` | `single-page-application` serves `index.html` for any unknown path, so links like `/play/ABC2345` work on refresh. |
+
+`npm run deploy` runs two steps:
+
+1. `vite build` compiles `src/` into `dist/`. The `VITE_*` values in `.env.local` are baked into
+   the files at this point. Change one and you must deploy again.
+2. `wrangler deploy` uploads `dist/` (only files that changed) and makes it the live version within seconds.
+
+### First-time setup
 
 ```bash
-npx wrangler login   # once; opens the browser
-npm run deploy       # vite build + wrangler deploy
+npx wrangler login     # opens the browser; click Allow. Saved for future runs.
+npx wrangler whoami    # check you are logged in
+npm run deploy
 ```
 
-The first deploy prints the URL (`https://scrabble.<your-subdomain>.workers.dev`); put it into
-Supabase's *Site URL* and *Redirect URLs* (step 2). Run `npm run deploy` again after any frontend
-change. `not_found_handling: "single-page-application"` serves `index.html` for unknown paths so
-links like `/play/ABC2345` work on refresh.
+A new Cloudflare account needs a *workers.dev subdomain* before its first deploy (dashboard →
+**Workers & Pages** → change subdomain). The first deploy prints the site URL; put it into
+Supabase's *Site URL* and *Redirect URLs* (setup step 2), or sign-up and password-reset links
+will point at the wrong place. HTTPS on a brand-new subdomain can take a few minutes to start working.
+
+### Everyday use
+
+```bash
+npm run deploy                    # publish the current code
+npx wrangler deploy --dry-run     # check the config without uploading
+npx wrangler deployments list     # history of deploys
+npx wrangler rollback             # go back to the previous version
+```
+
+Pushing to GitHub does **not** deploy by itself. To deploy on every push, open the Worker in the
+dashboard → **Settings → Builds** → connect the repo, with build command `npm run build`, deploy
+command `npx wrangler deploy`, and `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`
+(plus `VITE_GOOGLE_SIGN_IN` if used) added as build variables. The cloud build cannot see `.env.local`.
+
+Changes to `supabase/functions/` are separate: deploy them with the Supabase CLI (setup step 3).
+
+### The dashboard
+
+At <https://dash.cloudflare.com> → **Workers & Pages** → **scrabble**:
+
+- **Metrics**: requests and errors.
+- **Deployments**: version history and rollback.
+- **Settings → Domains & Routes**: add a custom domain (the domain must be on Cloudflare).
+- **Settings → Builds**: deploy on git push (above).
+
+Requests for static files are free and unlimited on the free plan.
