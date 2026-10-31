@@ -2,7 +2,7 @@
 
 Real-time multiplayer Scrabble for 2–4 players, each on their own device.
 
-- **Frontend:** React + Vite + Tailwind, deployed on Vercel.
+- **Frontend:** React + Vite + Tailwind, deployed on Cloudflare Workers (static assets).
 - **Backend:** Supabase — auth (email/password and Google), Postgres, Realtime, and one edge function (`room`) that runs the game.
 
 ## How it fits together
@@ -32,8 +32,8 @@ against the bundled ENABLE word list (`_shared/words.ts`).
 ### 2. Auth settings
 
 - **Authentication → URL Configuration**
-  - *Site URL*: your Vercel URL once you have it (use `http://localhost:5173` until then).
-  - *Redirect URLs*: add `http://localhost:5173/**` and `https://<your-app>.vercel.app/**`.
+  - *Site URL*: your Cloudflare URL once you have it (use `http://localhost:5173` until then).
+  - *Redirect URLs*: add `http://localhost:5173/**` and `https://scrabble.<your-subdomain>.workers.dev/**`.
 - **Authentication → Emails → Templates → Confirm signup**: the sign-up page asks for
   a 6-digit code, so the email must contain it. Replace the body with, for example:
   `<h2>Your Scrabble code</h2><p>Enter this code to finish signing up: <strong>{{ .Token }}</strong></p>`
@@ -44,7 +44,7 @@ against the bundled ENABLE word list (`_shared/words.ts`).
   (*APIs & Services → Credentials → OAuth client ID → Web application*), add the callback URL that
   Supabase shows under **Authentication → Sign In / Providers → Google** as an authorized redirect URI,
   then paste the client ID and secret into that Supabase page and enable it. Finally set
-  `VITE_GOOGLE_SIGN_IN=true` (in `.env.local` and in Vercel) to show the Google button.
+  `VITE_GOOGLE_SIGN_IN=true` (in `.env.local`, then redeploy) to show the Google button.
 
 ### 3. Deploy the edge function
 
@@ -73,12 +73,17 @@ Open <http://localhost:5173>. To test multiplayer, sign in as a second user in a
 
 Checks: `npm run lint` and `npm run build`.
 
-## Deploy to Vercel
+## Deploy to Cloudflare
 
-1. Push this repo to GitHub.
-2. In Vercel: **Add New → Project**, import the repo (Vite is detected automatically).
-3. Add the environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
-4. Deploy, then put the Vercel URL into Supabase's *Site URL* and *Redirect URLs* (step 2).
+The frontend is a static site served by Cloudflare Workers (config in `wrangler.jsonc`).
+The `VITE_*` values are baked in at build time, so the deploy builds from your `.env.local`.
 
-Every push to `main` redeploys the frontend. `vercel.json` sends all routes to `index.html`
-so links like `/play/ABC2345` work on refresh.
+```bash
+npx wrangler login   # once; opens the browser
+npm run deploy       # vite build + wrangler deploy
+```
+
+The first deploy prints the URL (`https://scrabble.<your-subdomain>.workers.dev`); put it into
+Supabase's *Site URL* and *Redirect URLs* (step 2). Run `npm run deploy` again after any frontend
+change. `not_found_handling: "single-page-application"` serves `index.html` for unknown paths so
+links like `/play/ABC2345` work on refresh.

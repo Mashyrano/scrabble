@@ -2,7 +2,7 @@
 
 ## Project Context
 
-Real-time multiplayer Scrabble: a React + Vite frontend (deployed on Vercel) backed by
+Real-time multiplayer Scrabble: a React + Vite frontend (deployed on Cloudflare Workers as static assets, `npm run deploy`) backed by
 Supabase (auth, Postgres, Realtime, one edge function). Keep changes focused on the
 user's request and preserve existing project conventions.
 
